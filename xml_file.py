@@ -76,4 +76,6 @@ class NF(xmlns):
     def v_prod(self) -> float:
         return self.xml_find_all('vProd')
     
+    def v_frete(self) -> float:
+        return self.xml_find_all_subitem_int('prod','vFrete')
     
