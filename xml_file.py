@@ -4,9 +4,6 @@ from funcoes import aliquota
 class xmlns:
     def __init__(self, file: str):
         self._file = bs(open(file), 'xml')
-    
-    def __len__(self):
-        return len(self._file)
 
 class NF(xmlns):
     def __init__(self, file):
