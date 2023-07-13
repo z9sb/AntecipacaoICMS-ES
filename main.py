@@ -1,18 +1,22 @@
-from os import path
+from os import path, remove
 from pathlib import Path
 from easygui import fileopenbox #type: ignore
 from emitir_dua import Dua
 from funcoes import calculo_antecipação_icms
 from xml_file import NF
 
+if path.exists('rootdir.txt'):
+    remove('rootdir.txt')
+    
 if not path.exists('rootdir.txt'):
-    rootdir = fileopenbox()
+    rootdir = fileopenbox(default= 'C:\donwload\*.xml')
+    
     with open('rootdir.txt', 'w') as f:
         f.write(rootdir)
-
+        
 with open('rootdir.txt') as file:
     root = Path(file.readline())
- 
+
 if __name__ == '__main__':
     xml = NF(root)
     cests = xml.cest()
@@ -32,4 +36,6 @@ if __name__ == '__main__':
         cests, alis, ncms, name_prods, v_produtos, v_ipis, v_fretes, v_descs, v_outros
         ),2)
     print(resultado)
-    Dua().emitir_dua_sefaz(imposto= resultado, cnpj= cnpj_des, n_nf= n_nf, n_for= name_for)
+    remove('rootdir.txt')
+    Dua().emitir_dua_sefaz(resultado, cnpj_des, n_nf, name_for)
+    
