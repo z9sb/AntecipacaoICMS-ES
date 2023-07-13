@@ -26,8 +26,7 @@ def comparation_ncm(ncm, cest):
             ncm[:len(str(i))])] and cest in file_search_xlsx('CEST')
     
 #Calcula o valor do imposto e o retorna
-def calculo(
-    
+def calculo_antecipação_icms(
     cests, alis, ncms, name_prods, v_produtos, v_ipis, v_fretes, v_descs, v_outros
     ):
     
@@ -44,3 +43,4 @@ def calculo(
             v_impoto += base_de_calculo_ipi - base_desconto_icms
             
     return v_impoto
+

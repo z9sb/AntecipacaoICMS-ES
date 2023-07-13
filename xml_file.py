@@ -12,13 +12,11 @@ class NF(xmlns):
     #Busca o primeiro item informado no xml
     def xml_find(self, item):
         xml_file = self._file.find(item)
-        assert xml_file is not None 
         return xml_file if xml_file else None
     
     #Busca o todos itens informados no xml
     def xml_find_all(self, item):
         xml_file = self._file.find_all(item)
-        assert xml_file is not None 
         return [i.text for i in xml_file] if xml_file else None
     
     #Busca todos os subitens informados e retorna uma lista zerada caso não o tenha
@@ -30,7 +28,6 @@ class NF(xmlns):
                 lista.append(i.find(subitem).text)
             else:
                 lista.append(add)
-        assert xml_file is not None
         return lista if lista != [] else [0 for i in  self.ncm()]
     
     #Retorna o itens das NF's sendo suportados os modelos (NF: 55, NFCE: 65)

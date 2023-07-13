@@ -1,10 +1,11 @@
 from os import path
-from xml_file import NF
-from funcoes import calculo
 from pathlib import Path
+from easygui import fileopenbox
+from funcoes import calculo_antecipação_icms
+from xml_file import NF
 
 if not path.exists('rootdir.txt'):
-    rootdir = input('Informe o caminho: \n')
+    rootdir = fileopenbox()
     with open('rootdir.txt', 'w') as f:
         f.write(rootdir)
 
@@ -23,7 +24,7 @@ if __name__ == '__main__':
     v_descs = xml.v_desc()
     v_outros = xml.v_outros()
     
-    resultado = round(calculo(
+    resultado = round(calculo_antecipação_icms(
         cests, alis, ncms, name_prods, v_produtos, v_ipis, v_fretes, v_descs, v_outros
         ),2)
     print(resultado)
