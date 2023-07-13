@@ -52,6 +52,9 @@ class NF(xmlns):
     def cnpj_dest(self) -> int: 
         return self.xml_find('dest').find('CNPJ').text
     
+    def name_for(self) -> str:
+        return self.xml_find('emit').find('xNome').text
+    
     def acess_key(self) -> int: 
         return self.xml_find('chNFe')
     
