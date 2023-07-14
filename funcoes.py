@@ -21,9 +21,20 @@ def file_search_xlsx(colum):
 
 #Compara o NCM e CEST informados, com o que estão no arquivo
 def comparation_ncm(ncm, cest):
-    
-    return [ncm for i in file_search_xlsx('NCM/SH') if int(i) == int(
-            ncm[:len(str(i))])] and cest in file_search_xlsx('CEST')
+    if [ncm for i in file_search_xlsx('NCM/SH') if int(i) == int(
+            ncm[:len(str(i))])]:
+        if cest == 0: 
+            cest_invalido = input('O produto não tem um CEST definido no xml, dejesa calcular somente pelo ncm? \n'
+                                  'Para não calcular pressione <N>').lower
+            if cest_invalido == 'n':
+                return False
+            else: 
+                return True
+        else:
+            return cest in file_search_xlsx('CEST')
+        
+    elif cest == file_search_xlsx('CEST')[-1]:
+        return True
     
 #Calcula o valor do imposto e o retorna
 def calculo_antecipação_icms(
@@ -33,7 +44,7 @@ def calculo_antecipação_icms(
     v_impoto = 0
     for cest, ali, ncm, name_prod, v_produto, v_ipi, v_frete, v_desc, v_outro in zip(
         cests, alis, ncms, name_prods, v_produtos, v_ipis, v_fretes, v_descs, v_outros):
-        
+        print(name_prod)
         if comparation_ncm(ncm, cest):
             base_de_calculo_ipi = (
                 float(v_produto) + float(v_ipi) + float(v_frete) + float(v_outro) - float(v_desc)

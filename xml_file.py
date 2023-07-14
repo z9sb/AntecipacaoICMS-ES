@@ -20,7 +20,7 @@ class NF(xmlns):
         return [i.text for i in xml_file] if xml_file else None
     
     #Busca todos os subitens informados e retorna uma lista zerada caso não o tenha
-    def xml_find_all_subitem_int(self, item, subitem, add = 0.00):
+    def xml_find_all_subitem_int(self, item, subitem, add = 0):
         lista = []
         xml_file = self._file.find_all(item)
         for i in xml_file:
@@ -71,7 +71,7 @@ class NF(xmlns):
         return self.xml_find_all('xProd')
     
     def cest(self) -> int:
-        return self.xml_find_all('CEST')
+        return self.xml_find_all_subitem_int('prod','CEST')
     
     def v_ipi(self) -> int:
         return self.xml_find_all_subitem_int('IPI', 'vIPI')

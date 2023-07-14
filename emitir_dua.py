@@ -13,14 +13,18 @@ class Dua:
                 element.send_keys(c)
                 sleep(endtime - time())
 
-    def emitir_dua_sefaz(self, imposto, cnpj, n_nf, n_for):
-            data = datetime.now()
-            month = data.month
-            year = data.year
+    def emitir_dua_sefaz(self, imposto, cnpj, n_nf, n_for, data_e_hora):
+            month = data_e_hora.month + 2
 
-            if month == 0:
-                month = 12
-                year = year -1
+            if month > 12:
+                  month = data_e_hora.month -12
+            else:
+                  month = data_e_hora.month +2
+
+            if month >= 12:
+                  year = data_e_hora.year + 1
+            else:
+                  year = data_e_hora.year
 
             nav = webdriver.Chrome(service= Service(
                 ChromeDriverManager().install()), options= webdriver.ChromeOptions())
@@ -33,13 +37,13 @@ class Dua:
                                 By.XPATH ,"/html/body/div[3]/div[2]/div[2]/fieldset/form/table/tbody/tr[3]/td[2]/input").click()
             nav.find_element(
                                 By.XPATH ,"/html/body/div[3]/div[2]/div[2]/fieldset/form/table/tbody/tr[3]/td[2]/input").send_keys(
-                                    f"{month:02}/{year}"
+                                    f"{data_e_hora.month:02}/{data_e_hora.year}"
                                 )
             nav.find_element(
                                 By.XPATH ,"/html/body/div[3]/div[2]/div[2]/fieldset/form/table/tbody/tr[5]/td[2]/input").click()
             nav.find_element(
                                 By.XPATH ,"/html/body/div[3]/div[2]/div[2]/fieldset/form/table/tbody/tr[5]/td[2]/input").send_keys(
-                                    f"{imposto}"
+                                    f"{imposto:.2f}"
                                 )
             g = nav.find_element(
                                 By.XPATH ,"/html/body/div[3]/div[2]/div[2]/fieldset/form/table/tbody/tr[1]/td[2]/input")
@@ -54,7 +58,7 @@ class Dua:
                                 By.XPATH ,"/html/body/div[3]/div[2]/div[2]/fieldset/form/table/tbody/tr[4]/td[2]/input").click()
             nav.find_element(
                                 By.XPATH ,"/html/body/div[3]/div[2]/div[2]/fieldset/form/table/tbody/tr[4]/td[2]/input").send_keys(
-                                    f"10/{month + 1:02}/{year}")
+                                    f"10/{month :02}/{year}")
             
             sleep(300)
             return None
