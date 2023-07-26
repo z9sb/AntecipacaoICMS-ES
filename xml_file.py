@@ -3,7 +3,7 @@ from funcoes import aliquota
 
 class xmlns:
     def __init__(self, file: str):
-        self._file = bs(open(file), 'xml')
+        self._file = bs(open(file, encoding='UTF-8'), 'xml')
 
 class NF(xmlns):
     def __init__(self, file):

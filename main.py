@@ -39,5 +39,5 @@ if __name__ == '__main__':
         ),2)
     print(resultado)
     remove('rootdir.txt')
-    Dua().emitir_dua_sefaz(resultado, cnpj_des, n_nf, name_for, data_e_hora)
+    #Dua().emitir_dua_sefaz(resultado, cnpj_des, n_nf, name_for, data_e_hora)
     
