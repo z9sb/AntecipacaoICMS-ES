@@ -1,7 +1,7 @@
 from os import path, remove
 from pathlib import Path
 from easygui import fileopenbox #type: ignore
-from emitir_dua import Dua
+from emitir_dua import Dua 
 from funcoes import calculo_antecipação_icms
 from xml_file import NF
 from datetime import datetime
