@@ -27,7 +27,7 @@ def file_search_xlsx(colum):
 def comparation_ncm(ncm, cest, name_prod):
     if [ncm for i in file_search_xlsx('NCM/SH') if int(i) == int(
             ncm[:len(str(i))])]:
-        if cest == 0: 
+        if cest == 0 or cest == '0000000': 
             print(name_prod)
             cest_invalido = input(
                 'O produto não tem CEST definido no xml, calcular somente pelo ncm? \n'

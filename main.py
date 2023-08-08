@@ -33,7 +33,7 @@ if __name__ == '__main__':
     n_nf = xml.number_nf()
     name_for = xml.name_for()
     data_e_hora_em_texto = xml.date_emition()
-    data_e_hora = datetime.strptime(data_e_hora_em_texto, '%Y-%m-%dT%H:%M:%S-03:00')
+    data_e_hora = datetime.strptime(data_e_hora_em_texto, '%Y-%m-%dT%H:%M:%S%z')
     resultado = round(calculo_antecipação_icms(
         cests, alis, ncms, name_prods, v_produtos, v_ipis, v_fretes, v_descs, v_outros
         ),2)
