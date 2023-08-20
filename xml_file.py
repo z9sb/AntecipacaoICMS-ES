@@ -55,8 +55,17 @@ class NF(xmlns):
     def name_for(self) -> str:
         return self.xml_find('emit').find('xNome').text
     
+    def estado_for(self) -> str:
+        return self.xml_find('emit').find('UF').text
+    
+    def name_cli(self) -> str:
+        return self.xml_find('dest').find('xNome').text
+    
+    def estado_cli(self) -> str:
+        return self.xml_find('dest').find('UF').text
+    
     def acess_key(self) -> int: 
-        return self.xml_find('chNFe')
+        return self.xml_find('chNFe').text
     
     def ncm(self) -> int: 
         return self.xml_find_all('NCM')
@@ -87,3 +96,6 @@ class NF(xmlns):
     
     def v_outros(self) -> float:
         return self.xml_find_all_subitem_int('prod','vOutro')
+    
+    def Valor_total(self) -> float:
+        return self.xml_find('ICMSTot').find('vNF').text
