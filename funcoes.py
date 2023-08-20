@@ -1,6 +1,8 @@
 from string import punctuation
 from pandas import read_excel
 import bd
+from datetime import datetime
+from os import getlogin
 
 #Retorna a aliquota interestadual para o estado do ES
 def aliquota(uf: str) -> float:
@@ -48,7 +50,7 @@ def calculo_antecipação_icms(
     cests, alis, ncms, name_prods, v_produtos, v_ipis, v_fretes, v_descs, v_outros, 
     cnpj, nome, chave_nf, data_hora, Valor_total
     ):
-    
+    DataOperacao = datetime.now()
     
     v_impoto = 0
     for cest, ali, ncm, name_prod, v_produto, v_ipi, v_frete, v_desc, v_outro in zip(
@@ -66,7 +68,7 @@ def calculo_antecipação_icms(
             
             bd.cadastrar_itens(
                 bd.cadastrar_nota(bd.cadastrar_empresas(
-                    cnpj, nome), chave_nf, data_hora, Valor_total),
+                cnpj, nome), chave_nf, data_hora, Valor_total, DataOperacao,getlogin()),
                 name_prod, ncm, cest, ali, v_produto, float(v_ipi), v_frete, v_outro,
                 v_desc, base_de_calculo_ipi, base_desconto_icms, 
                 (base_de_calculo_ipi-base_desconto_icms)
