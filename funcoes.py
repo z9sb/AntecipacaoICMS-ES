@@ -48,7 +48,7 @@ def comparation_ncm(ncm, cest, name_prod):
 #Calcula o valor do imposto e o retorna
 def calculo_antecipação_icms(
     cests, alis, ncms, name_prods, v_produtos, v_ipis, v_fretes, v_descs, v_outros, 
-    cnpj, nome, chave_nf, data_hora, Valor_total
+    cnpj, nome, chave_nf, data_hora, Valor_total, NumeroNF, SerieNF, NomeFornecedor
     ):
     DataOperacao = datetime.now()
     
@@ -68,11 +68,12 @@ def calculo_antecipação_icms(
             
             bd.cadastrar_itens(
                 bd.cadastrar_nota(bd.cadastrar_empresas(
-                cnpj, nome), chave_nf, data_hora, Valor_total, DataOperacao,getlogin()),
+                cnpj, nome), chave_nf, NumeroNF,SerieNF, NomeFornecedor,
+                data_hora, Valor_total, 0,  DataOperacao,getlogin()),
                 name_prod, ncm, cest, ali, v_produto, float(v_ipi), v_frete, v_outro,
                 v_desc, base_de_calculo_ipi, base_desconto_icms, 
                 (base_de_calculo_ipi-base_desconto_icms)
             )
-            
+    bd.atualizar_imposto_notas(round(v_impoto, 2), chave_nf)        
     return v_impoto
 

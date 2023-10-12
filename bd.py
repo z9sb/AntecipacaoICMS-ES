@@ -1,6 +1,6 @@
 import sqlite3
-from os import path, getlogin
-import pandas as pd
+from os import path
+
 # Conectar-se ao banco de dados (ou criar um novo se não existir)
 conn = sqlite3.connect('dados.db')
 cursor = conn.cursor()
@@ -18,8 +18,12 @@ try:
                             ID INTEGER PRIMARY KEY,
                             EmpresaID INTEGER,
                             Chave TEXT,
+                            NumeroNF TEXT,
+                            SerieNF TEXT,
+                            NomeFornecedor TEXT,
                             DataEmissao DATE,
                             ValorTotal DECIMAL,
+                            ValorImposto DECIMAL,
                             DataOperacao DATE,
                             Usuario TEXT,
                             FOREIGN KEY (EmpresaID) REFERENCES Empresas(ID)
@@ -57,7 +61,9 @@ def cadastrar_empresas(cnpj, nome):
         cursor.execute("INSERT INTO Empresas (CNPJ, Nome) VALUES(?, ?)", (cnpj, nome))
         return cursor.lastrowid
 
-def cadastrar_nota(EmpresaID, Chave, DataEmissao, ValorTotal, DataOperacao, Usuario):
+def cadastrar_nota(EmpresaID, Chave, NumeroNF, SerieNF, NomeFornecedor,
+            DataEmissao, ValorTotal, ValorImposto, DataOperacao, Usuario
+            ):
     cursor.execute("SELECT ID FROM NotasFiscais WHERE Chave = ?", (Chave,))
     chave_id = cursor.fetchone()
     
@@ -65,12 +71,16 @@ def cadastrar_nota(EmpresaID, Chave, DataEmissao, ValorTotal, DataOperacao, Usua
         return chave_id[0]
     else:
         cursor.execute(
-            "INSERT INTO NotasFiscais (EmpresaID, Chave, DataEmissao, ValorTotal, DataOperacao, Usuario) VALUES(?, ?, ?, ?, ?, ?)", (
-            EmpresaID, Chave, DataEmissao, ValorTotal, DataOperacao, Usuario))
+            "INSERT INTO NotasFiscais (EmpresaID, Chave, NumeroNF, SerieNF, "
+            "NomeFornecedor, DataEmissao, ValorTotal, ValorImposto, DataOperacao,"
+            "Usuario) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (
+            EmpresaID, Chave, NumeroNF, SerieNF, NomeFornecedor,
+            DataEmissao, ValorTotal, ValorImposto, DataOperacao, Usuario
+            ))
         return cursor.lastrowid
 
 def cadastrar_itens(NotaDIscalID, NomeProduto, NCM, CEST, AliICMS, ValorPro, ValorIPI, 
-            ValorFrete, ValorOutras, ValorDesconto, ValorBC, ValorICMSDes,ValorImposto):
+        ValorFrete, ValorOutras, ValorDesconto, ValorBC, ValorICMSDes, ValorImposto):
     
     cursor.execute("SELECT ID FROM Itens WHERE NomeProduto = ?", (NomeProduto,))
     item_id = cursor.fetchone()
@@ -80,9 +90,12 @@ def cadastrar_itens(NotaDIscalID, NomeProduto, NCM, CEST, AliICMS, ValorPro, Val
     
     else:
         cursor.execute(
-            "INSERT INTO Itens (NotaFiscalID, NomeProduto, NCM, CEST, AliICMS, ValorPro, ValorIPI, ValorFrete, ValorOutras, ValorDesconto, ValorBC, ValorICMSDes, ValorImposto) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            "INSERT INTO Itens (NotaFiscalID, NomeProduto, NCM, CEST, AliICMS, "
+            "ValorPro, ValorIPI, ValorFrete, ValorOutras, ValorDesconto, ValorBC,"
+            "ValorICMSDes, ValorImposto) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             (NotaDIscalID, NomeProduto, NCM, CEST, AliICMS, ValorPro,
-            ValorIPI, ValorFrete, ValorOutras, ValorDesconto, ValorBC, ValorICMSDes, ValorImposto)
+            ValorIPI, ValorFrete, ValorOutras, ValorDesconto, ValorBC,
+            ValorICMSDes, ValorImposto)
         )
     
     return conn.commit()
@@ -105,10 +118,17 @@ def localization_chave_id(ID):
     if chave_id:
         return chave_id[0]
 
+def atualizar_imposto_notas(imposto, chave):
+    cursor.execute("UPDATE NotasFiscais SET ValorImposto = ? WHERE Chave = ?", (
+        imposto, chave))
+    
+    conn.commit()
+
 def localization_item(NomeProduto):  
     cursor.execute(
-        "SELECT NomeProduto, NCM, CEST, AliICMS, ValorPro, ValorIPI, ValorFrete, ValorOutras, ValorDesconto, ValorBC, ValorICMSDes,NotaFiscalID  ValorImposto FROM Itens WHERE NomeProduto LIKE ?",
-                   ('%' + NomeProduto + '%',))
+        "SELECT NomeProduto, NCM, CEST, AliICMS, ValorPro, ValorIPI, ValorFrete,"
+        "ValorOutras, ValorDesconto, ValorBC, ValorICMSDes, ValorImposto, NotaFiscalID"
+        "FROM Itens WHERE NomeProduto LIKE ?", ('%' + NomeProduto + '%',))
     item_name = cursor.fetchall()
     
     if item_name:

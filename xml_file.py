@@ -30,6 +30,20 @@ class NF(xmlns):
                 lista.append(add)
         return lista if lista != [] else [0 for i in  self.ncm()]
     
+    #Retorna a aliquota interestadual para o estado do ES
+    def aliquota(uf):
+        dicionario = {
+            'AC': 12.00, 'AL': 12.00, 'AM': 12.00, 'AP': 12.00,
+            'BA': 12.00, 'CE': 12.00, 'DF': 12.00,
+            'GO': 12.00, 'MA': 12.00, 'MT': 12.00, 'MS': 12.00,
+            'MG': 7.00, 'PA': 12.00, 'PB': 12.00,
+            'PR': 12.00, 'PE': 7.00, 'PI': 12.00, 'RN': 12.00,
+            'RS': 7.00,  'RJ': 7.00, 'RO': 12.00,
+            'RR': 12.00, 'SC': 7.00, 'SP': 7.00, 'SE': 12.00,
+            'TO': 12.00, 'IM': 4.00, 'ES': 17.00
+            }
+        return dicionario[uf]
+    
     #Retorna o itens das NF's sendo suportados os modelos (NF: 55, NFCE: 65)
     def model(self) -> str: 
         return self.xml_find('mod').text

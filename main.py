@@ -31,6 +31,7 @@ if __name__ == '__main__':
     v_outros = xml.v_outros()
     cnpj_des = xml.cnpj_dest()
     n_nf = xml.number_nf()
+    serie_nf = xml.serie()
     chave_nf = xml.acess_key()
     name_for = xml.name_for()
     nome_cli = xml.name_cli()
@@ -45,8 +46,9 @@ if __name__ == '__main__':
     
     else:
         resultado = round(calculo_antecipação_icms(
-            cests, alis, ncms, name_prods, v_produtos, v_ipis, v_fretes, v_descs, v_outros,
-            cnpj_des, nome_cli, chave_nf, data_e_hora, Valor_total
+            cests, alis, ncms, name_prods, v_produtos, v_ipis, v_fretes, v_descs,
+            v_outros, cnpj_des, nome_cli, chave_nf, data_e_hora, Valor_total, n_nf,
+            serie_nf, name_for
             ),2)
         print(resultado)
         remove('rootdir.txt')
