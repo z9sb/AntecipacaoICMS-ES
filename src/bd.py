@@ -1,72 +1,74 @@
 import sqlite3
 from os import path
 
+caminho_db = r'data\dados.db'
 # Conectar-se ao banco de dados (ou criar um novo se não existir)
-conn = sqlite3.connect('dados.db')
-cursor = conn.cursor()
 
-try:
-    if not path.exists('dados.bd'):
-        cursor.execute('''CREATE TABLE Empresas (
+if not path.exists(caminho_db):
+    conn = sqlite3.connect(caminho_db)
+    cursor = conn.cursor()
+    cursor.execute('''CREATE TABLE Empresas (
+                    ID INTEGER PRIMARY KEY,
+                    CNPJ TEXT,
+                    Nome TEXT
+                )''')
+
+    # Criar tabela de notas fiscais
+    cursor.execute('''CREATE TABLE NotasFiscais (
                         ID INTEGER PRIMARY KEY,
-                        CNPJ TEXT,
-                        Nome TEXT
+                        EmpresaID INTEGER,
+                        Chave TEXT,
+                        NumeroNF TEXT,
+                        SerieNF TEXT,
+                        NomeFornecedor TEXT,
+                        DataEmissao DATE,
+                        ValorTotal DECIMAL,
+                        ValorImposto DECIMAL,
+                        DataOperacao DATE,
+                        Usuario TEXT,
+                        FOREIGN KEY (EmpresaID) REFERENCES Empresas(ID)
                     )''')
 
-        # Criar tabela de notas fiscais
-        cursor.execute('''CREATE TABLE NotasFiscais (
-                            ID INTEGER PRIMARY KEY,
-                            EmpresaID INTEGER,
-                            Chave TEXT,
-                            NumeroNF TEXT,
-                            SerieNF TEXT,
-                            NomeFornecedor TEXT,
-                            DataEmissao DATE,
-                            ValorTotal DECIMAL,
-                            ValorImposto DECIMAL,
-                            DataOperacao DATE,
-                            Usuario TEXT,
-                            FOREIGN KEY (EmpresaID) REFERENCES Empresas(ID)
-                        )''')
+    # Criar tabela de itens de notas fiscais
+    cursor.execute('''CREATE TABLE Itens (
+                        ID INTEGER PRIMARY KEY,
+                        NotaFiscalID INTEGER,
+                        NomeProduto TEXT,
+                        NCM TEXT,
+                        CEST TEXT,
+                        AliICMS DECIMAL,
+                        ValorPro DECIMAL,
+                        ValorIPI DECIMAL,
+                        ValorFrete DECIMAL,
+                        ValorOutras DECIMAL,
+                        ValorDesconto DECIMAL,
+                        ValorBC DECIMAL,
+                        ValorICMSDes DECIMAL,
+                        ValorImposto DECIMAL,
+                        FOREIGN KEY (NotaFiscalID) REFERENCES NotasFiscais(ID)
+                    )''')
+conn = sqlite3.connect(caminho_db)
+cursor = conn.cursor()
 
-        # Criar tabela de itens de notas fiscais
-        cursor.execute('''CREATE TABLE Itens (
-                            ID INTEGER PRIMARY KEY,
-                            NotaFiscalID INTEGER,
-                            NomeProduto TEXT,
-                            NCM TEXT,
-                            CEST TEXT,
-                            AliICMS DECIMAL,
-                            ValorPro DECIMAL,
-                            ValorIPI DECIMAL,
-                            ValorFrete DECIMAL,
-                            ValorOutras DECIMAL,
-                            ValorDesconto DECIMAL,
-                            ValorBC DECIMAL,
-                            ValorICMSDes DECIMAL,
-                            ValorImposto DECIMAL,
-                            FOREIGN KEY (NotaFiscalID) REFERENCES NotasFiscais(ID)
-                        )''')
-
-except:
-    pass
 
 def cadastrar_empresas(cnpj, nome):
     cursor.execute("SELECT ID FROM Empresas WHERE CNPJ = ?", (cnpj,))
     empresa_id = cursor.fetchone()
-    
+
     if empresa_id:
         return empresa_id[0]
     else:
-        cursor.execute("INSERT INTO Empresas (CNPJ, Nome) VALUES(?, ?)", (cnpj, nome))
+        cursor.execute(
+            "INSERT INTO Empresas (CNPJ, Nome) VALUES(?, ?)", (cnpj, nome))
         return cursor.lastrowid
 
+
 def cadastrar_nota(EmpresaID, Chave, NumeroNF, SerieNF, NomeFornecedor,
-            DataEmissao, ValorTotal, ValorImposto, DataOperacao, Usuario
-            ):
+                   DataEmissao, ValorTotal, ValorImposto, DataOperacao, Usuario
+                   ):
     cursor.execute("SELECT ID FROM NotasFiscais WHERE Chave = ?", (Chave,))
     chave_id = cursor.fetchone()
-    
+
     if chave_id:
         return chave_id[0]
     else:
@@ -74,66 +76,73 @@ def cadastrar_nota(EmpresaID, Chave, NumeroNF, SerieNF, NomeFornecedor,
             "INSERT INTO NotasFiscais (EmpresaID, Chave, NumeroNF, SerieNF, "
             "NomeFornecedor, DataEmissao, ValorTotal, ValorImposto, DataOperacao,"
             "Usuario) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (
-            EmpresaID, Chave, NumeroNF, SerieNF, NomeFornecedor,
-            DataEmissao, ValorTotal, ValorImposto, DataOperacao, Usuario
+                EmpresaID, Chave, NumeroNF, SerieNF, NomeFornecedor,
+                DataEmissao, ValorTotal, ValorImposto, DataOperacao, Usuario
             ))
         return cursor.lastrowid
 
-def cadastrar_itens(NotaDIscalID, NomeProduto, NCM, CEST, AliICMS, ValorPro, ValorIPI, 
-        ValorFrete, ValorOutras, ValorDesconto, ValorBC, ValorICMSDes, ValorImposto):
-    
-    cursor.execute("SELECT ID FROM Itens WHERE NomeProduto = ?", (NomeProduto,))
+
+def cadastrar_itens(NotaDIscalID, NomeProduto, NCM, CEST, AliICMS, ValorPro,
+                    ValorIPI, ValorFrete, ValorOutras, ValorDesconto,
+                    ValorBC, ValorICMSDes, ValorImposto):
+
+    cursor.execute(
+        "SELECT ID FROM Itens WHERE NomeProduto = ?", (NomeProduto,))
     item_id = cursor.fetchone()
-    
+
     if item_id:
         return item_id[0]
-    
+
     else:
         cursor.execute(
             "INSERT INTO Itens (NotaFiscalID, NomeProduto, NCM, CEST, AliICMS, "
             "ValorPro, ValorIPI, ValorFrete, ValorOutras, ValorDesconto, ValorBC,"
             "ValorICMSDes, ValorImposto) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             (NotaDIscalID, NomeProduto, NCM, CEST, AliICMS, ValorPro,
-            ValorIPI, ValorFrete, ValorOutras, ValorDesconto, ValorBC,
-            ValorICMSDes, ValorImposto)
+             ValorIPI, ValorFrete, ValorOutras, ValorDesconto, ValorBC,
+             ValorICMSDes, ValorImposto)
         )
-    
+
     return conn.commit()
 
+
 def localization_chave(Chave):
-    cursor.execute("SELECT Chave FROM NotasFiscais WHERE Chave LIKE ?", 
+    cursor.execute("SELECT Chave FROM NotasFiscais WHERE Chave LIKE ?",
                    ('%' + Chave + '%',))
     chave_text = cursor.fetchone()
-    
+
     if chave_text:
         return print(chave_text[0])
-    
+
     else:
         return print('A chave informada não se encontra cadastrada!')
+
 
 def localization_chave_id(ID):
     cursor.execute("SELECT Chave FROM NotasFiscais WHERE ID = ?", (ID,))
     chave_id = cursor.fetchone()
-    
+
     if chave_id:
         return chave_id[0]
+
 
 def atualizar_imposto_notas(imposto, chave):
     cursor.execute("UPDATE NotasFiscais SET ValorImposto = ? WHERE Chave = ?", (
         imposto, chave))
-    
+
     conn.commit()
 
-def localization_item(NomeProduto):  
+
+def localization_item(NomeProduto):
     cursor.execute(
         "SELECT NomeProduto, NCM, CEST, AliICMS, ValorPro, ValorIPI, ValorFrete,"
         "ValorOutras, ValorDesconto, ValorBC, ValorICMSDes, ValorImposto, NotaFiscalID"
         "FROM Itens WHERE NomeProduto LIKE ?", ('%' + NomeProduto + '%',))
     item_name = cursor.fetchall()
-    
+
     if item_name:
         for item in item_name:
-            with open(f'{localization_chave_id(item[-1])}.txt','a') as f:
+            with open(f'{localization_chave_id(item[-1])}.txt', 'a') as f:
                 f.writelines(f'{item[0]}; ')
                 f.writelines(f'{item[1]}; ')
                 f.writelines(f'{item[2]}; ')
@@ -148,7 +157,8 @@ def localization_item(NomeProduto):
                 f.writelines(f'{item[11]}\n')
     else:
         print(f'O item informado "{NomeProduto}" não foi encontrado!')
-        
+
+
 if __name__ == '__main__':
     consulta = input(
         'Você deseja consultar uma NF ou algun item? 1 - para nota 2 - para item.\n')
