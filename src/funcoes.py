@@ -2,7 +2,7 @@ from string import punctuation
 from pandas import read_excel
 import bd as bd
 from datetime import datetime
-from os import getlogin, getcwd
+from os import getlogin
 
 # Retorna a aliquota interestadual para o estado do ES
 
@@ -25,9 +25,10 @@ def aliquota(uf: str) -> float:
 
 def file_search_xlsx(colum):
     extraction = read_excel('data\\codigos.xlsx')[colum]
-    comparation = ([str(i).translate(str.maketrans
-                                     ('', '', punctuation
-                                      )) for i in extraction if str(i) != 'nan'])
+    comparation = (
+        [str(i).translate(str.maketrans
+                          ('', '', punctuation
+                           )) for i in extraction if str(i) != 'nan'])
     return comparation
 
 # Compara o NCM e CEST informados, com o que estão no arquivo
@@ -39,7 +40,7 @@ def comparation_ncm(ncm, cest, name_prod):
         if cest == 0.0 or cest == '0000000':
             print(name_prod)
             cest_invalido = input(
-                'O produto não tem CEST definido no xml, calcular somente pelo ncm? \n'
+                'O produto não tem CEST definido, calcular somente pelo ncm?\n'
                 'Para não calcular pressione <N>').lower()
             if cest_invalido == 'n':
                 return False
@@ -79,9 +80,8 @@ def calculo_antecipação_icms(
                 bd.cadastrar_nota(bd.cadastrar_empresas(
                     cnpj, nome), chave_nf, NumeroNF, SerieNF, NomeFornecedor,
                     data_hora, Valor_total, 0,  DataOperacao, getlogin()),
-                name_prod, ncm, cest, ali, v_produto, float(
-                    v_ipi), v_frete, v_outro,
-                v_desc, base_de_calculo_ipi, base_desconto_icms,
+                name_prod, ncm, cest, ali, v_produto, float(v_ipi), v_frete,
+                v_outro, v_desc, base_de_calculo_ipi, base_desconto_icms,
                 (base_de_calculo_ipi-base_desconto_icms)
             )
     bd.atualizar_imposto_notas(round(v_impoto, 2), chave_nf)

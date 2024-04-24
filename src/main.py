@@ -1,14 +1,14 @@
 from pathlib import Path
 from easygui import fileopenbox  # type: ignore
 from funcoes import calculo_antecipação_icms
-from xml_file import NF
+from modules.xml_file import NFe
 from datetime import datetime
 import time
 
 root = Path(fileopenbox(default=r'C:\donwload\*.xml'))
 
 if __name__ == '__main__':
-    xml = NF(root)
+    xml = NFe(root)
     cests = xml.cest()
     alis = xml.ali_icms()
     ncms = xml.ncm()
