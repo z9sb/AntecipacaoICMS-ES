@@ -1,18 +1,82 @@
 import requests
+import xml.etree.ElementTree as ET
 
-
-def emitiDuaSefaz(url: str, cnpj: int, dataCompetencia: str,
+def emitiDuaSefaz(cnpj: int, dataCompetencia: str,
                   dataVencimento: str, dataPagamento: str,
-                  valorReceita: float,  codServ: int,
+                  valorReceita: float, codServ: int,
                   codigoMunicipio: int, complemteno: str = None,
-                  tipoEmissao: int = 1, ):
-    url = "https://app.sefaz.es.gov.br/WsDua/DuaService.asmx"
+                  TipoAmb: int = 1, certificado: str = None,
+                  chave: str = None):
 
-    payload = f"<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<soap:Envelope\n    xmlns:soap=\"http://www.w3.org/2003/05/soap-envelope\"\n    xmlns:duae=\"http://www.sefaz.es.gov.br/duae\">\n    <soap:Header>\n        <duae:DuaServiceHeader>\n            <duae:versao>1.01</duae:versao>\n        </duae:DuaServiceHeader>\n    </soap:Header>\n    <soap:Body>\n        <duae:duaEmissao>\n            <duae:duaDadosMsg>\n                <emisDua\n                    versao=\"1.01\"\n                    xmlns=\"http://www.sefaz.es.gov.br/duae\">\n                    <tpAmb>{tipoEmissao}</tpAmb>\n                    <cnpjEmi>27080571000130</cnpjEmi>\n                    <cnpjOrg>27080571000130</cnpjOrg>\n                    <cArea>5</cArea>\n                    <cServ>{codServ}</cServ>\n                    <cnpjPes>{cnpj}</cnpjPes>\n                    <dRef>{dataCompetencia}</dRef>\n                    <dVen>{dataVencimento}</dVen>\n                    <dPag>{dataPagamento}</dPag>\n                    <cMun>{codigoMunicipio}</cMun>\n                    <xInf>{complemteno}</xInf>\n                    <vRec>{valorReceita}</vRec>\n                    <xIde>NFe XYZ</xIde>\n                    <fPix>true</fPix>\n                </emisDua>\n            </duae:duaDadosMsg>\n        </duae:duaEmissao>\n    </soap:Body>\n</soap:Envelope>"
+    if TipoAmb == 1:
+        url = "https://app.sefaz.es.gov.br/WsDua/DuaService.asmx"
+    elif TipoAmb == 2:
+        url = 'https://homologacao.sefaz.es.gov.br/WsDua/DuaService.asmx'
+
+    payload = f"""<?xml version="1.0" encoding="utf-8"?>
+    <soap:Envelope
+        xmlns:soap="http://www.w3.org/2003/05/soap-envelope"
+        xmlns:duae="http://www.sefaz.es.gov.br/duae">
+        <soap:Header>
+            <duae:DuaServiceHeader>
+                <duae:versao>1.01</duae:versao>
+            </duae:DuaServiceHeader>
+        </soap:Header>
+        <soap:Body>
+            <duae:duaEmissao>
+                <duae:duaDadosMsg>
+                    <emisDua
+                        versao="1.01"
+                        xmlns="http://www.sefaz.es.gov.br/duae">
+                        <tpAmb>{TipoAmb}</tpAmb>
+                        <cnpjEmi>27080571000130</cnpjEmi>
+                        <cnpjOrg>27080571000130</cnpjOrg>
+                        <cArea>5</cArea>
+                        <cServ>{codServ}</cServ>
+                        <cnpjPes>{cnpj}</cnpjPes>
+                        <dRef>{dataCompetencia}</dRef>
+                        <dVen>{dataVencimento}</dVen>
+                        <dPag>{dataPagamento}</dPag>
+                        <cMun>{codigoMunicipio}</cMun>
+                        <xInf>{complemteno}</xInf>
+                        <vRec>{valorReceita}</vRec>
+                        <xIde>NFe XYZ</xIde>
+                        <fPix>true</fPix>
+                    </emisDua>
+                </duae:duaDadosMsg>
+            </duae:duaEmissao>
+        </soap:Body>
+    </soap:Envelope>"""
+
     headers = {
         'Content-Type': 'application/soap+xml'
     }
 
-    response = requests.request("POST", url, headers=headers, data=payload)
+    cert = (certificado, chave) if certificado and chave else None
 
+    # Enviando a requisição
+    response = requests.post(url, headers=headers, data=payload, cert=cert)
+
+    # Exibindo a resposta bruta
     print(response.text)
+
+    # Analisando a resposta XML
+    if response.status_code == 200:
+        try:
+            root = ET.fromstring(response.text)
+            # Definindo o namespace
+            namespace = {'soap': 'http://www.w3.org/2003/05/soap-envelope',
+                         'duae': 'http://www.sefaz.es.gov.br/duae'}
+
+            # Extraindo o número do DUA
+            n_dua = root.find('.//duae:nDua', namespaces=namespace)
+
+            if n_dua is not None:
+                return f"{n_dua.text}"
+            else:
+                print("Número do DUA não encontrado.")
+        except ET.ParseError as e:
+            print(f"Erro ao analisar o XML: {e}")
+    else:
+        print(f"Erro na requisição: {response.status_code} - {response.text}")
+

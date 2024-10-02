@@ -25,6 +25,7 @@ if not path.exists(caminho_db):
                         ValorTotal DECIMAL,
                         ValorImposto DECIMAL,
                         DataOperacao DATE,
+                        N_DUA TEXT,
                         Usuario TEXT,
                         FOREIGN KEY (EmpresaID) REFERENCES Empresas(ID)
                     )''')
@@ -64,22 +65,31 @@ def cadastrar_empresas(cnpj, nome):
 
 
 def cadastrar_nota(EmpresaID, Chave, NumeroNF, SerieNF, NomeFornecedor,
-                   DataEmissao, ValorTotal, ValorImposto, DataOperacao, Usuario
-                   ):
-    cursor.execute("SELECT ID FROM NotasFiscais WHERE Chave = ?", (Chave,))
-    chave_id = cursor.fetchone()
+                   DataEmissao, ValorTotal, ValorImposto, DataOperacao,
+                   N_DUA, Usuario):
+    try:
+        cursor.execute("SELECT ID FROM NotasFiscais WHERE Chave = ?", (Chave,))
+        chave_id = cursor.fetchone()
 
-    if chave_id:
-        return chave_id[0]
-    else:
-        cursor.execute(
-            "INSERT INTO NotasFiscais (EmpresaID, Chave, NumeroNF, SerieNF, "
-            "NomeFornecedor, DataEmissao, ValorTotal, ValorImposto, DataOperacao,"
-            "Usuario) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (
-                EmpresaID, Chave, NumeroNF, SerieNF, NomeFornecedor,
-                DataEmissao, ValorTotal, ValorImposto, DataOperacao, Usuario
-            ))
-        return cursor.lastrowid
+        if chave_id:
+            return chave_id[0]  # Retorna o ID se a nota fiscal já existe.
+        else:
+            cursor.execute(
+                "INSERT INTO NotasFiscais (EmpresaID, Chave, NumeroNF, SerieNF, "
+                "NomeFornecedor, DataEmissao, ValorTotal, ValorImposto,"
+                "DataOperacao, N_DUA, Usuario) "
+                "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (
+                    EmpresaID, Chave, NumeroNF, SerieNF, NomeFornecedor,
+                    DataEmissao, ValorTotal, ValorImposto, DataOperacao,
+                    N_DUA, Usuario
+                ))
+            conn.commit()  # Commit das alterações
+            return cursor.lastrowid  # Retorna o ID da nova nota fiscal cadastrada.
+
+    except Exception as e:
+        print(f"Erro ao cadastrar nota: {e}")
+        conn.rollback()
+        return None
 
 
 def cadastrar_itens(NotaDIscalID, NomeProduto, NCM, CEST, AliICMS, ValorPro,
@@ -124,6 +134,21 @@ def localization_chave_id(ID):
 
     if chave_id:
         return chave_id[0]
+
+
+def get_N_DUA(chave):
+    numero = cursor.execute("SELECT N_DUA FROM NotasFiscais = ? WHERE Chave = ?", (
+        chave))
+
+    if numero:
+        return numero[0]
+
+
+def atualizar_N_DUA(N_DUA, chave):
+    cursor.execute("UPDATE NotasFiscais SET N_DUA = ? WHERE Chave = ?", (
+        N_DUA, chave))
+
+    conn.commit()
 
 
 def atualizar_imposto_notas(imposto, chave):

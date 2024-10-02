@@ -2,9 +2,18 @@ from string import punctuation
 from pandas import read_excel
 import bd as bd
 from datetime import datetime
-from os import getlogin
+from os import getlogin, path
+from IntegracaoSefazAPI.EmitirDua import emitiDuaSefaz
+from dateutil.relativedelta import relativedelta
+from IntegracaoSefazAPI.ObterPDF import ObterPDF
 
 # Retorna a aliquota interestadual para o estado do ES
+
+script_dir = path.dirname(path.abspath(__file__))
+cert = path.abspath(
+    path.join(script_dir, r'..\certificado\cert.pem'))
+key = path.abspath(
+    path.join(script_dir, r'..\certificado\key.pem'))
 
 
 def aliquota(uf: str) -> float:
@@ -79,10 +88,22 @@ def calculo_antecipação_icms(
             bd.cadastrar_itens(
                 bd.cadastrar_nota(bd.cadastrar_empresas(
                     cnpj, nome), chave_nf, NumeroNF, SerieNF, NomeFornecedor,
-                    data_hora, Valor_total, 0,  DataOperacao, getlogin()),
+                    data_hora, Valor_total, 0, DataOperacao, 'Null', getlogin()),
                 name_prod, ncm, cest, ali, v_produto, float(v_ipi), v_frete,
                 v_outro, v_desc, base_de_calculo_ipi, base_desconto_icms,
                 (base_de_calculo_ipi-base_desconto_icms)
             )
     bd.atualizar_imposto_notas(round(v_impoto, 2), chave_nf)
+    competencia = f"{DataOperacao.year}-{DataOperacao.month:02d}"
+    conferencia = input('Empresa do Simples Nacional? S Sim ou N Não ').lower()
+    if conferencia == 's':
+        nova_data_e_hora = data_hora + relativedelta(months=2)
+        data_formatada = nova_data_e_hora.strftime('%Y-%m-10')
+    N_DUA = emitiDuaSefaz(
+        cnpj, competencia, data_formatada, data_formatada, round(v_impoto, 2),
+        '3220', '56154', f'NF N {NumeroNF} {NomeFornecedor}', 2, cert, key
+    )
+    bd.atualizar_N_DUA(N_DUA, chave_nf)
+    pdf = ObterPDF(N_DUA, 2, cnpj, cert, key)
+    
     return v_impoto
