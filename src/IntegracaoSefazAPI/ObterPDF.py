@@ -2,6 +2,7 @@ import requests
 import base64
 import xml.etree.ElementTree as ET
 
+
 def ObterPDF(num_DUA, tipo_amb, CNPJ, certificado, chave):
 
     if tipo_amb == 1:
@@ -10,7 +11,7 @@ def ObterPDF(num_DUA, tipo_amb, CNPJ, certificado, chave):
         url = 'https://homologacao.sefaz.es.gov.br/WsDua/DuaService.asmx'
     else:
         raise ValueError("tipo_amb deve ser 1 ou 2.")
-    
+
     payload = f"""<?xml version="1.0" encoding="utf-8"?>
 <soap:Envelope
 xmlns:soap="http://www.w3.org/2003/05/soap-envelope"

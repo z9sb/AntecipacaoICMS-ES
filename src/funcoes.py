@@ -99,11 +99,14 @@ def calculo_antecipação_icms(
     if conferencia == 's':
         nova_data_e_hora = data_hora + relativedelta(months=2)
         data_formatada = nova_data_e_hora.strftime('%Y-%m-10')
+    elif conferencia == 'n':
+        data_formatada = DataOperacao.strftime('%Y-%m-%d')
+
     N_DUA = emitiDuaSefaz(
         cnpj, competencia, data_formatada, data_formatada, round(v_impoto, 2),
         '3220', '56154', f'NF N {NumeroNF} {NomeFornecedor}', 2, cert, key
     )
     bd.atualizar_N_DUA(N_DUA, chave_nf)
     pdf = ObterPDF(N_DUA, 2, cnpj, cert, key)
-    
+
     return v_impoto
